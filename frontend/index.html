@@ -9,10 +9,15 @@
 <body>
     <div class="container">
         <h1>Task Manager</h1>
+
+        <!-- Form nhập task -->
         <form id="task-form">
-            <input type="text" id="task-input" placeholder="Enter a task" required>
+            <input type="text" id="task-input" placeholder="Enter task name" required>
+            <textarea id="task-content" placeholder="Enter task description"></textarea>
             <button type="submit">Add Task</button>
         </form>
+
+        <!-- Bộ lọc ưu tiên -->
         <div class="filters">
             <label for="priority">Priority:</label>
             <select id="priority">
@@ -22,8 +27,27 @@
                 <option value="Low">Low</option>
             </select>
         </div>
+
+        <!-- Danh sách task -->
         <ul id="task-list"></ul>
     </div>
-    <script src="script.js"></script>
+
+    <!-- Load script sau khi DOM đã sẵn sàng -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            console.log("✅ DOM đã load hoàn tất!");
+
+            // Kiểm tra các phần tử
+            if (!document.getElementById("task-form") || 
+                !document.getElementById("task-input") || 
+                !document.getElementById("task-content") || 
+                !document.getElementById("task-list")) {
+                console.error("❌ Một số phần tử không được tìm thấy! Kiểm tra lại index.html.");
+            }
+        });
+    </script>
+
+    <!-- Gọi file script chính -->
+    <script src="script.js" defer></script>
 </body>
 </html>
