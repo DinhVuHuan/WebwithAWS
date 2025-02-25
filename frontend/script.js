@@ -15,7 +15,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function fetchTasks() {
         const selectedPriority = priorityFilter.value;
-        const url = selectedPriority === "All" ? "http://localhost:3000/tasks" : `http://localhost:3000/tasks?priority=${selectedPriority}`;
+        const url = selectedPriority === "All" ? "http://3.107.190.9:3000/tasks" : `http://3.107.190.9:3000/tasks?priority=${selectedPriority}`;
 
         fetch(url)
             .then(response => response.json())
@@ -56,7 +56,7 @@ document.addEventListener("DOMContentLoaded", () => {
             priority: 'Medium'
         };
 
-        fetch('http://localhost:3000/tasks', {
+        fetch('http://3.107.190.9:3000/tasks', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(newTask)
@@ -74,7 +74,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function deleteTask(id) {
-        fetch(`http://localhost:3000/tasks/${id}`, { method: 'DELETE' })
+        fetch(`http://3.107.190.9:3000/tasks/${id}`, { method: 'DELETE' })
             .then(response => {
                 if (response.ok) fetchTasks();
                 else console.error("❌ Lỗi khi xóa task!");
