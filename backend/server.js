@@ -5,7 +5,7 @@ const mysql = require('mysql2');
 const app = express();
 const port = 3000;
 
-// Kết nối MySQL RDS
+// Kết nối MySQL
 const db = mysql.createConnection({
     host: 'database-task-manager.c1oia4wm0b92.ap-southeast-2.rds.amazonaws.com',
     user: 'admin',
@@ -54,7 +54,7 @@ app.post('/tasks', (req, res) => {
     }
 
     const query = 'INSERT INTO tasks (name, description, priority) VALUES (?, ?, ?)';
-    const values = [name, description || '', priority || ''];
+    const values = [name, description || '', priority || 'Medium'];
 
     db.query(query, values, (err, result) => {
         if (err) {
@@ -76,26 +76,6 @@ app.delete('/tasks/:id', (req, res) => {
         }
         res.status(204).send();
     });
-});
-
-// Cập nhật task
-app.put('/tasks/:id', (req, res) => {
-    const taskId = parseInt(req.params.id);
-    const { name, description, priority } = req.body;
-
-    db.query('UPDATE tasks SET name = ?, description = ?, priority = ? WHERE id = ?',
-        [name, description, priority, taskId], (err, result) => {
-            if (err) {
-                console.error('❌ Lỗi khi cập nhật task:', err);
-                return res.status(500).json({ message: 'Lỗi server' });
-            }
-            res.json({ id: taskId, name, description, priority });
-        });
-});
-
-// Serve frontend
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, '../frontend', 'index.html'));
 });
 
 app.listen(port, '0.0.0.0', () => {

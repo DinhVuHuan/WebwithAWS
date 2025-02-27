@@ -2,10 +2,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const taskForm = document.getElementById('task-form');
     const taskInput = document.getElementById('task-input');
     const taskDescription = document.getElementById('task-content');
+    const taskPriority = document.getElementById('task-priority'); // 🔥 Thêm chọn độ quan trọng
     const taskList = document.getElementById('task-list');
-    const priorityFilter = document.getElementById('priority');
+    const priorityFilter = document.getElementById('priority-filter'); // 🔥 Bộ lọc độ quan trọng
 
-    if (!taskForm || !taskInput || !taskDescription || !taskList || !priorityFilter) {
+    if (!taskForm || !taskInput || !taskDescription || !taskList || !priorityFilter || !taskPriority) {
         console.error("❌ Một số phần tử không được tìm thấy! Kiểm tra lại index.html.");
         return;
     }
@@ -15,7 +16,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function fetchTasks() {
         const selectedPriority = priorityFilter.value;
-        const url = selectedPriority === "All" ? "http://3.107.190.9:3000/tasks" : `http://3.107.190.9:3000/tasks?priority=${selectedPriority}`;
+        const url = selectedPriority === "All" ? "/tasks" : `/tasks?priority=${selectedPriority}`;
 
         fetch(url)
             .then(response => response.json())
@@ -53,10 +54,10 @@ document.addEventListener("DOMContentLoaded", () => {
         const newTask = {
             name: taskInput.value,
             description: taskDescription.value || '',
-            priority: 'Medium'
+            priority: taskPriority.value // 🔥 Lấy từ dropdown độ quan trọng
         };
 
-        fetch('http://3.107.190.9:3000/tasks', {
+        fetch('/tasks', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(newTask)
@@ -74,7 +75,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function deleteTask(id) {
-        fetch(`http://3.107.190.9:3000/tasks/${id}`, { method: 'DELETE' })
+        fetch(`/tasks/${id}`, { method: 'DELETE' })
             .then(response => {
                 if (response.ok) fetchTasks();
                 else console.error("❌ Lỗi khi xóa task!");
