@@ -1,29 +1,51 @@
 const express = require('express');
 const path = require('path');
+const mysql = require('mysql2');
+
 const app = express();
 const port = 3000;
 
+// Kết nối MySQL RDS
+const db = mysql.createConnection({
+    host: 'database-task-manager.c1oia4wm0b92.ap-southeast-2.rds.amazonaws.com',
+    user: 'admin',
+    password: 'admin22!',
+    database: 'database-task-manager'
+});
+
+db.connect(err => {
+    if (err) {
+        console.error('❌ Không thể kết nối MySQL:', err);
+        return;
+    }
+    console.log('✅ Đã kết nối MySQL thành công!');
+});
+
+// Middleware
 app.use(express.static(path.join(__dirname, '../frontend')));
 app.use(express.json());
 
-let tasks = [
-    { id: 1, name: "Task 1", description: "Description 1", priority: "High" },
-    { id: 2, name: "Task 2", description: "Description 2", priority: "Low" }
-];
-
-// GET all tasks with optional priority filter
+// Lấy danh sách task
 app.get('/tasks', (req, res) => {
     const { priority } = req.query;
+    let query = 'SELECT * FROM tasks';
+    let params = [];
 
     if (priority && priority !== "All") {
-        const filteredTasks = tasks.filter(task => task.priority === priority);
-        return res.json(filteredTasks);
+        query += ' WHERE priority = ?';
+        params.push(priority);
     }
 
-    res.json(tasks);
+    db.query(query, params, (err, results) => {
+        if (err) {
+            console.error('❌ Lỗi khi lấy tasks:', err);
+            return res.status(500).json({ message: 'Lỗi server' });
+        }
+        res.json(results);
+    });
 });
 
-// POST a new task
+// Thêm task mới
 app.post('/tasks', (req, res) => {
     const { name, description, priority } = req.body;
 
@@ -31,38 +53,44 @@ app.post('/tasks', (req, res) => {
         return res.status(400).json({ message: "Task name is required!" });
     }
 
-    const newTask = {
-        id: tasks.length ? tasks[tasks.length - 1].id + 1 : 1,
-        name,
-        description: description || '',
-        priority: priority || 'Medium'
-    };
+    const query = 'INSERT INTO tasks (name, description, priority) VALUES (?, ?, ?)';
+    const values = [name, description || '', priority || 'Medium'];
 
-    tasks.push(newTask);
-    res.status(201).json(newTask);
+    db.query(query, values, (err, result) => {
+        if (err) {
+            console.error('❌ Lỗi khi thêm task:', err);
+            return res.status(500).json({ message: 'Lỗi server' });
+        }
+        res.status(201).json({ id: result.insertId, name, description, priority });
+    });
 });
 
-// DELETE a task
+// Xóa task
 app.delete('/tasks/:id', (req, res) => {
     const taskId = parseInt(req.params.id);
-    tasks = tasks.filter(task => task.id !== taskId);
-    res.status(204).send();
+
+    db.query('DELETE FROM tasks WHERE id = ?', [taskId], (err, result) => {
+        if (err) {
+            console.error('❌ Lỗi khi xóa task:', err);
+            return res.status(500).json({ message: 'Lỗi server' });
+        }
+        res.status(204).send();
+    });
 });
 
-// PUT (Update) a task
+// Cập nhật task
 app.put('/tasks/:id', (req, res) => {
     const taskId = parseInt(req.params.id);
-    const task = tasks.find(task => task.id === taskId);
+    const { name, description, priority } = req.body;
 
-    if (!task) {
-        return res.status(404).json({ message: "Task not found" });
-    }
-
-    task.name = req.body.name || task.name;
-    task.description = req.body.description || task.description;
-    task.priority = req.body.priority || task.priority;
-
-    res.json(task);
+    db.query('UPDATE tasks SET name = ?, description = ?, priority = ? WHERE id = ?',
+        [name, description, priority, taskId], (err, result) => {
+            if (err) {
+                console.error('❌ Lỗi khi cập nhật task:', err);
+                return res.status(500).json({ message: 'Lỗi server' });
+            }
+            res.json({ id: taskId, name, description, priority });
+        });
 });
 
 // Serve frontend
