@@ -54,7 +54,7 @@ app.post('/tasks', (req, res) => {
     }
 
     const query = 'INSERT INTO tasks (name, description, priority) VALUES (?, ?, ?)';
-    const values = [name, description || '', priority || 'Medium'];
+    const values = [name, description || '', priority || ''];
 
     db.query(query, values, (err, result) => {
         if (err) {
