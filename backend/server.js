@@ -10,7 +10,7 @@ const db = mysql.createConnection({
     host: 'database-task-manager.c1oia4wm0b92.ap-southeast-2.rds.amazonaws.com',
     user: 'admin',
     password: 'admin22!',
-    database: 'database-task-manager'
+    database: 'database_task_manager'
 });
 
 db.connect(err => {
